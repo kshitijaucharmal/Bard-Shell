@@ -9,6 +9,7 @@ import sys
 if not sys.stdin.isatty():
     stdin = sys.stdin.read()
     sys.stdin.flush()
+    pass
 else:
     stdin = ''
     print('No Stdin')
@@ -24,6 +25,10 @@ parser.add_option("-s", "--shell",
                   action = "store_false",
                   dest = "shell",
                   default = True,
+                  help = "Give output as shell scripts",)
+parser.add_option("-p", "--prompt",
+                  dest = "prompt",
+                  type = 'string',
                   help = "Give output as shell scripts",)
 
 (options, args) = parser.parse_args()
@@ -48,9 +53,11 @@ def generate_prompt():
     with os.popen('neofetch --off --color_blocks off') as process:
         info += process.read() + '\n'
     info += "Take my system Information into consideration if necessary.\n" 
-    info += stdin
 
-    p = input('Enter Prompt: ') + '\n'
+    if stdin == '':
+        p = options.prompt
+    else:
+        p = stdin + '\n' + options.prompt
     print('Getting Bard Response..')
 
     prompt = info + p
@@ -90,20 +97,20 @@ def code_exec(code):
 
         os.system(f'chmod +x {filename} && sh {filename}')
 
-while True:
-    # Get Response for this
-    response = bard.get_answer(generate_prompt())
+# while True:
+# Get Response for this
+response = bard.get_answer(generate_prompt())
 
-    code_exists = False
-    for key in modes:
-        if key == 'code':
-            code_exists = True
-        print(key.title(), end=': \n')
-        print(response[key], end='\n\n')
-        pass
+code_exists = False
+for key in modes:
+    if key == 'code':
+        code_exists = True
+    print(key.title(), end=': \n')
+    print(response[key], end='\n\n')
+    pass
 
-    if code_exists:
-        code_exec(response['code'])
+if code_exists:
+    code_exec(response['code'])
 
-    if input('Continue conversation(Y/n)? ').lower() != 'y':
-        break
+# if input('Continue conversation(Y/n)? ').lower() != 'y':
+    # break
