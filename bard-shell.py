@@ -2,10 +2,20 @@
 
 import re
 from bardapi import Bard
-import optparse
+from requests import options
+from options import Parser
 import os
 import sys
 
+# Initialize options
+p = Parser()
+(options, args) = p.add_options()
+parser = p.parser
+
+# Modes possible
+all_modes = ['content', 'conversation_id', 'response_id', 'factualityQueries', 'textQuery', 'choices', 'links', 'images', 'code']
+
+# Get stdin output
 if not sys.stdin.isatty():
     stdin = sys.stdin.read()
     sys.stdin.flush()
@@ -14,26 +24,7 @@ else:
     stdin = ''
     print('No Stdin')
 
-parser = optparse.OptionParser()
-
-# add options
-parser.add_option("-m", "--modes",
-                  dest = "modes",
-                  default = 'content',
-                  help = "Available modes: content, conversation_id, response_id, factualityQueries, textQuery, choices, links, images, code",)
-parser.add_option("-s", "--shell",
-                  action = "store_false",
-                  dest = "shell",
-                  default = True,
-                  help = "Give output as shell scripts",)
-parser.add_option("-p", "--prompt",
-                  dest = "prompt",
-                  type = 'string',
-                  help = "Give output as shell scripts",)
-
-(options, args) = parser.parse_args()
-
-all_modes = ['content', 'conversation_id', 'response_id', 'factualityQueries', 'textQuery', 'choices', 'links', 'images', 'code']
+# Method to check if given modes are Available
 def check_mode(mode):
     e = mode in all_modes
     if not e:
@@ -52,15 +43,18 @@ def generate_prompt():
     info = 'OS Information: '
     with os.popen('neofetch --off --color_blocks off') as process:
         info += process.read() + '\n'
-    info += "Take my system Information into consideration if necessary.\n" 
+    info += '''Take my system Information into consideration before giving outputs.
+If the command output is not empty, use it as the input to perform operations.
+Do what the Prompt says with the input.\n\n'''
 
     if stdin == '':
-        p = options.prompt
+        p = 'Prompt:\n' + options.prompt
     else:
-        p = stdin + '\n' + options.prompt
+        p = 'Command Output:\n' + stdin + '\nPrompt:\n' + options.prompt + '\n'
+
     print('Getting Bard Response..')
 
-    prompt = info + p
+    prompt = str(info) + str(p)
     print(prompt)
     return prompt
 
@@ -75,7 +69,8 @@ def code_exec(code):
         return
     
 
-    yn = input('[E]dit,[R]un,[A]bort: ')
+    # yn = input('[E]dit,[R]un,[A]bort: ')
+    yn = 'r'
     yn = yn.lower() if len(yn) > 0 else 'e'
 
     filename = '/tmp/bard_code'
