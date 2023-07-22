@@ -6,6 +6,7 @@ from requests import options
 from options import Parser
 import os
 import sys
+import toml
 
 # Initialize options
 p = Parser()
@@ -33,20 +34,30 @@ def check_mode(mode):
         exit()
     return e
 
+# Get all modes
 modes = options.modes.split(',')
+# Check if these modes exist
 for m in modes:
     check_mode(m)
 
 def generate_prompt():
     info = ''
-    # if options.shell:
+
+    # Get os info from neofetch
     info = 'OS Information: '
+
+    # Get neofetch info
     with os.popen('neofetch --off --color_blocks off') as process:
         info += process.read() + '\n'
-    info += '''Take my system Information into consideration before giving outputs.
+    # Get pwd info
+    info += 'Present Working Directory:\n' + os.getcwd() + '\n'
+
+    # Prompt to give bard all the info it might need
+    info += '''Instructions:\nTake my system Information into consideration before giving outputs.
 If the command output is not empty, use it as the input to perform operations.
 Do what the Prompt says with the input.\n\n'''
 
+    # If There is no stdin pass the prompt as normal
     if stdin == '':
         p = 'Prompt:\n' + options.prompt
     else:
@@ -59,53 +70,60 @@ Do what the Prompt says with the input.\n\n'''
     return prompt
 
 # Get token
-token = 'XwhHybTuH8jrTIIShLF1Ye_lhk1F-XxncqdhD7ftrqgegWPHF5XcSz3sIFnGJD7etQRXXg.'
+config = toml.load(os.path.expanduser('~') + '/.config/bardshell/bard.toml')
+
+token = config['user']['token']
 print('Initialzing..')
 bard = Bard(token=token)
 
+# Function to execute code
 def code_exec(code):
     if not code:
         print('Code is null')
         return
-    
 
+    # This is not working, just running the script for now
     # yn = input('[E]dit,[R]un,[A]bort: ')
     yn = 'r'
     yn = yn.lower() if len(yn) > 0 else 'e'
 
+    # File to store code
     filename = '/tmp/bard_code'
 
-    print(re.search('```.*', code))
+    # Search for code in content
+    print(re.search('```.\S', code))
 
+    # Abort
     if yn == 'a':
         return
 
+    # Edit
     elif yn == 'e':
         with open(filename, 'w') as f:
             f.write(code)
         os.system(f'nvim {filename}')
         return
 
+    # Execute code
     elif yn == 'r':
         with open(filename, 'w') as f:
             f.write(code)
 
         os.system(f'chmod +x {filename} && sh {filename}')
 
-# while True:
-# Get Response for this
+# Get Response for the prompt
 response = bard.get_answer(generate_prompt())
 
+# If code exists
 code_exists = False
 for key in modes:
+    # And user asking for code
     if key == 'code':
         code_exists = True
     print(key.title(), end=': \n')
     print(response[key], end='\n\n')
     pass
 
+# Run code-exec if asked for code
 if code_exists:
     code_exec(response['code'])
-
-# if input('Continue conversation(Y/n)? ').lower() != 'y':
-    # break

@@ -9,14 +9,9 @@ class Parser:
                           dest = "modes",
                           default = 'content',
                           help = "Available modes: content, conversation_id, response_id, factualityQueries, textQuery, choices, links, images, code",)
-        self.parser.add_option("-s", "--shell",
-                          action = "store_false",
-                          dest = "shell",
-                          default = True,
-                          help = "Give output as shell scripts",)
         self.parser.add_option("-p", "--prompt",
                           dest = "prompt",
                           type = 'string',
-                          help = "Give output as shell scripts",)
+                          help = "Give a prompt",)
 
         return self.parser.parse_args()
