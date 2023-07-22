@@ -69,13 +69,6 @@ Do what the Prompt says with the input.\n\n'''
     print(prompt)
     return prompt
 
-# Get token
-config = toml.load(os.path.expanduser('~') + '/.config/bardshell/bard.toml')
-
-token = config['user']['token']
-print('Initialzing..')
-bard = Bard(token=token)
-
 # Function to execute code
 def code_exec(code):
     if not code:
@@ -111,8 +104,19 @@ def code_exec(code):
 
         os.system(f'chmod +x {filename} && sh {filename}')
 
+# Bard works here
+# ----------------------------------------------------------------------------------------------------------
+# Get token
+config = toml.load(os.path.expanduser('~') + '/.config/bardshell/bard.toml')
+token = config['user']['token']
+
+# Give the token to bard
+bard = Bard(token=token)
+
 # Get Response for the prompt
-response = bard.get_answer(generate_prompt())
+final_prompt = generate_prompt()
+response = bard.get_answer(final_prompt)
+# ----------------------------------------------------------------------------------------------------------
 
 # If code exists
 code_exists = False
