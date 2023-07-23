@@ -3,6 +3,11 @@ Getting Bard Response..
 
 # Input
 
+## Command Ran
+```bash
+ls ~/Downloads | python ~/dox/programming/Python/Bard-Shell/bard-shell.py -p "Write a short story on the contents of the current directory" -m content
+```
+
 ```bash
 OS Information: kshitij@archbtw
 ---------------
