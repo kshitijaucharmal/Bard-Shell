@@ -20,6 +20,9 @@ class BardShell:
     def setup_token(self):
         print('Initializing....')
         # Give the token to bard
+        if self.token[-1] != '.':
+            print('Invalid token given, check the config file')
+            exit()
         self.bard = Bard(token=self.token)
         print('Done.')
         pass
