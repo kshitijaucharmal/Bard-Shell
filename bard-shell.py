@@ -8,126 +8,131 @@ import os
 import sys
 import toml
 
-# Initialize options
-p = Parser()
-(options, args) = p.add_options()
-parser = p.parser
+class BardShell:
+    def __init__(self, parser, configfile='.config/bardshell/bard.toml'):
+        self.config = configfile
+        self.all_modes = ['content', 'conversation_id', 'response_id', 'factualityQueries', 'textQuery', 'choices', 'links', 'images', 'code']
+        self.stdin = ''
+        self.modes = []
+        self.parser = parser
+        (self.options, self.args) = self.parser.add_options()
+        # Get token
+        config = toml.load(os.path.expanduser('~') + self.config)
+        self.token = config['user']['token']
 
-# Modes possible
-all_modes = ['content', 'conversation_id', 'response_id', 'factualityQueries', 'textQuery', 'choices', 'links', 'images', 'code']
+        self.response = dict() # the raw response sent by bard
+        pass
 
-# Get stdin output
-if not sys.stdin.isatty():
-    stdin = sys.stdin.read()
-    sys.stdin.flush()
-    pass
-else:
-    stdin = ''
-    print('No Stdin')
 
-# Method to check if given modes are Available
-def check_mode(mode):
-    e = mode in all_modes
-    if not e:
-        print(f'Error: {e} is not in Available Modes\n')
-        parser.print_help()
-        exit()
-    return e
+    def get_stdin(self):
+        # Get stdin output
+        if not sys.stdin.isatty():
+            self.stdin = sys.stdin.read()
+            sys.stdin.flush()
+            pass
 
-# Get all modes
-modes = options.modes.split(',')
-# Check if these modes exist
-for m in modes:
-    check_mode(m)
+    # Method to check if given modes are Available
+    def check_mode(self, mode):
+        e = mode in self.all_modes
+        if not e:
+            print(f'Error: {e} is not in Available Modes\n')
+            self.parser.print_help()
+            exit()
+        return e
 
-def generate_prompt():
-    info = ''
+    def get_modes(self):
+        # Get all modes
+        self.modes = self.options.modes.split(',')
+        # Check if these modes exist
+        for m in self.modes:
+            self.check_mode(m)
 
-    # Get os info from neofetch
-    info = 'OS Information: '
+    def generate_prompt(self):
+        info = ''
 
-    # Get neofetch info
-    with os.popen('neofetch --off --color_blocks off') as process:
-        info += process.read() + '\n'
-    # Get pwd info
-    info += 'Present Working Directory:\n' + os.getcwd() + '\n'
+        # Get os info from neofetch
+        info = 'OS Information: '
 
-    # Prompt to give bard all the info it might need
-    info += '''Instructions:\nTake my system Information into consideration before giving outputs.
-If the command output is not empty, use it as the input to perform operations.
-Do what the Prompt says with the input.\n\n'''
+        # Get neofetch info
+        with os.popen('neofetch --off --color_blocks off') as process:
+            info += process.read()
+        # Get pwd info
+        info += 'Present Working Directory:\n' + os.getcwd() + '\n\n'
 
-    # If There is no stdin pass the prompt as normal
-    if stdin == '':
-        p = 'Prompt:\n' + options.prompt
-    else:
-        p = 'Command Output:\n' + stdin + '\nPrompt:\n' + options.prompt + '\n'
+        # Prompt to give bard all the info it might need
+        info += 'Instructions:\nTake my system Information into consideration before giving outputs.'
+        info += 'If the command output is not empty, use it as the input to perform operations.'
+        info += 'Do what the Prompt says with the input.\n\n'
 
-    print('Getting Bard Response..')
+        # If There is no stdin pass the prompt as normal
+        if self.stdin == '':
+            p = 'Prompt:\n' + options.prompt
+        else:
+            p = 'Command Output:\n' + self.stdin + '\nPrompt:\n' + options.prompt + '\n'
 
-    prompt = str(info) + str(p)
-    print(prompt)
-    return prompt
+        print('Getting Bard Response..')
 
-# Function to execute code
-def code_exec(code):
-    if not code:
-        print('Code is null')
-        return
+        prompt = str(info) + str(p)
+        print(prompt)
+        return prompt
 
-    # This is not working, just running the script for now
-    # yn = input('[E]dit,[R]un,[A]bort: ')
-    yn = 'r'
-    yn = yn.lower() if len(yn) > 0 else 'e'
+    # Function to execute code
+    def code_exec(self, code):
+        if not code:
+            print('Code is null')
+            return
 
-    # File to store code
-    filename = '/tmp/bard_code'
+        # This is not working, just running the script for now
+        # yn = input('[E]dit,[R]un,[A]bort: ')
+        yn = 'r'
+        yn = yn.lower() if len(yn) > 0 else 'e'
 
-    # Search for code in content
-    print(re.search('```.\S', code))
+        # File to store code
+        filename = '/tmp/bard_code'
 
-    # Abort
-    if yn == 'a':
-        return
+        # Search for code in content
+        print(re.search('```.\S', code))
 
-    # Edit
-    elif yn == 'e':
-        with open(filename, 'w') as f:
-            f.write(code)
-        os.system(f'nvim {filename}')
-        return
+        # Abort
+        if yn == 'a':
+            return
 
-    # Execute code
-    elif yn == 'r':
-        with open(filename, 'w') as f:
-            f.write(code)
+        # Edit
+        elif yn == 'e':
+            with open(filename, 'w') as f:
+                f.write(code)
+            os.system(f'nvim {filename}')
+            return
 
-        os.system(f'chmod +x {filename} && sh {filename}')
+        # Execute code
+        elif yn == 'r':
+            with open(filename, 'w') as f:
+                f.write(code)
 
-# Bard works here
-# ----------------------------------------------------------------------------------------------------------
-# Get token
-config = toml.load(os.path.expanduser('~') + '/.config/bardshell/bard.toml')
-token = config['user']['token']
+            os.system(f'chmod +x {filename} && sh {filename}')
+        pass
 
-# Give the token to bard
-bard = Bard(token=token)
+    def setup_token(self):
+        # Give the token to bard
+        bard = Bard(token=self.token)
 
-# Get Response for the prompt
-final_prompt = generate_prompt()
-response = bard.get_answer(final_prompt)
-# ----------------------------------------------------------------------------------------------------------
+        # Get Response for the prompt
+        final_prompt = self.generate_prompt()
+        self.response = bard.get_answer(final_prompt)
+        pass
 
-# If code exists
-code_exists = False
-for key in modes:
-    # And user asking for code
-    if key == 'code':
-        code_exists = True
-    print(key.title(), end=': \n')
-    print(response[key], end='\n\n')
-    pass
+    def code_run(self):
+        # If code exists
+        code_exists = False
+        for key in self.modes:
+            # And user asking for code
+            if key == 'code':
+                code_exists = True
+            print(key.title(), end=': \n')
+            print(self.response[key], end='\n\n')
+            pass
 
-# Run code-exec if asked for code
-if code_exists:
-    code_exec(response['code'])
+        # Run code-exec if asked for code
+        if code_exists:
+            self.code_exec(self.response['code'])
+        pass
