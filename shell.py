@@ -5,20 +5,20 @@ import sys
 import toml
 
 class BardShell:
-    def __init__(self, parser):
+    def __init__(self, parser, configfile='~/.config/bardshell/bard.toml'):
         self.all_modes = ['content', 'conversation_id', 'response_id', 'factualityQueries', 'textQuery', 'choices', 'links', 'images', 'code']
         self.stdin = ''
         self.modes = []
         self.parser = parser
         (self.options, self.args) = self.parser.add_options()
         self.response = dict() # the raw response sent by bard
+
+        self.config = toml.load(os.path.expanduser(configfile))
+        self.token = self.config['user']['token']
         pass
 
-    def setup_token(self, configfile='~/.config/bardshell/bard.toml'):
+    def setup_token(self):
         print('Initializing....')
-        config = toml.load(os.path.expanduser(configfile))
-        self.token = config['user']['token']
-
         # Give the token to bard
         self.bard = Bard(token=self.token)
         print('Done.')
@@ -61,9 +61,12 @@ class BardShell:
         info += 'Present Working Directory:\n' + os.getcwd() + '\n\n'
 
         # Prompt to give bard all the info it might need
-        info += 'Instructions:\nTake my system Information into consideration if necessary before giving outputs.'
-        info += 'If the command output is not empty, use it as the input to perform operations.'
-        info += 'Do what the Prompt says with the input.\n\n'
+        instructions = ''
+        instructions += 'Instructions:\nTake my system Information into consideration if necessary before giving outputs.'
+        instructions += 'If the command output is not empty, use it as the input to perform operations.'
+        instructions += 'Do what the Prompt says with the input.\n\n'
+
+        info += instructions
 
         # If There is no stdin pass the prompt as normal
         if self.stdin == '':
