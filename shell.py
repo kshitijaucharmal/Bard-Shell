@@ -1,12 +1,11 @@
 import re
 from bardapi import Bard
-from requests import options
 import os
 import sys
 import toml
 
 class BardShell:
-    def __init__(self, parser, configfile='.config/bardshell/bard.toml'):
+    def __init__(self, parser, configfile='/.config/bardshell/bard.toml'):
         self.config = configfile
         self.all_modes = ['content', 'conversation_id', 'response_id', 'factualityQueries', 'textQuery', 'choices', 'links', 'images', 'code']
         self.stdin = ''
@@ -16,10 +15,17 @@ class BardShell:
         # Get token
         config = toml.load(os.path.expanduser('~') + self.config)
         self.token = config['user']['token']
+        self.setup_token()
 
         self.response = dict() # the raw response sent by bard
         pass
 
+    def setup_token(self):
+        print('Initializing....')
+        # Give the token to bard
+        self.bard = Bard(token=self.token)
+        print('Done.')
+        pass
 
     def get_stdin(self):
         # Get stdin output
@@ -63,9 +69,9 @@ class BardShell:
 
         # If There is no stdin pass the prompt as normal
         if self.stdin == '':
-            p = 'Prompt:\n' + options.prompt
+            p = 'Prompt:\n' + self.options.prompt
         else:
-            p = 'Command Output:\n' + self.stdin + '\nPrompt:\n' + options.prompt + '\n'
+            p = 'Command Output:\n' + self.stdin + '\nPrompt:\n' + self.options.prompt + '\n'
 
         print('Getting Bard Response..')
 
@@ -109,13 +115,10 @@ class BardShell:
             os.system(f'chmod +x {filename} && sh {filename}')
         pass
 
-    def setup_token(self):
-        # Give the token to bard
-        bard = Bard(token=self.token)
-
+    def get_response(self):
         # Get Response for the prompt
         final_prompt = self.generate_prompt()
-        self.response = bard.get_answer(final_prompt)
+        self.response = self.bard.get_answer(final_prompt)
         pass
 
     def code_run(self):
