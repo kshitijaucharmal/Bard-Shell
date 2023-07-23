@@ -43,6 +43,8 @@ class BardShell:
         # Get all modes
         self.modes = self.options.modes.split(',')
         # Check if these modes exist
+        if len(self.modes) == 0:
+            self.modes.append('content')
         for m in self.modes:
             self.check_mode(m)
 
@@ -59,7 +61,7 @@ class BardShell:
         info += 'Present Working Directory:\n' + os.getcwd() + '\n\n'
 
         # Prompt to give bard all the info it might need
-        info += 'Instructions:\nTake my system Information into consideration before giving outputs.'
+        info += 'Instructions:\nTake my system Information into consideration if necessary before giving outputs.'
         info += 'If the command output is not empty, use it as the input to perform operations.'
         info += 'Do what the Prompt says with the input.\n\n'
 
