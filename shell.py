@@ -54,14 +54,15 @@ class BardShell:
     def generate_prompt(self):
         info = ''
 
-        # Get os info from neofetch
-        info = 'OS Information: '
-
         # Get neofetch info
-        with os.popen('neofetch --off --color_blocks off') as process:
-            info += process.read()
+        if self.options.send_sysinfo:
+            info += 'OS Information: '
+            with os.popen('neofetch --off --color_blocks off') as process:
+                info += process.read()
+
         # Get pwd info
-        info += 'Present Working Directory:\n' + os.getcwd() + '\n\n'
+        if self.options.send_pwd:
+            info += 'Present Working Directory:\n' + os.getcwd() + '\n\n'
 
         # Prompt to give bard all the info it might need
         instructions = self.config['default']['instructions']

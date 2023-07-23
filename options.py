@@ -14,6 +14,16 @@ class Parser:
                         type = 'string',
                         default = 'You are working as a software called Bard-Shell. Greet the user in an appropriate way, not including any of the other input',
                         help = "Give a prompt",)
+        self.parser.add_option("-i", "--send-sysinfo",
+                        action = 'store_true',
+                        dest = "send_sysinfo",
+                        default = False,
+                        help = "Whether to send the system Information (default: False)",)
+        self.parser.add_option("-w", "--send-pwd",
+                        action = 'store_true',
+                        dest = "send_pwd",
+                        default = False,
+                        help = "Whether to send the Present working Directory (default: False)",)
         self.parser.add_option("-s", "--show-prompt",
                         action = 'store_true',
                         dest = "show_prompt",

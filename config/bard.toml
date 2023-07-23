@@ -1,6 +1,6 @@
 [default]
 modes = "content,code,links"
-instructions = "Instructions:\nTake my system Information into consideration if necessary before giving outputs. If the command output is not empty, use it as the input to perform operations. Do what the Prompt says with the input.\n\n"
+instructions = "Instructions:\nTake my system Information into consideration if given before giving outputs. If the command output is not empty, use it as the input to perform operations. Do what the Prompt says with the input.\n\n"
 
 [user]
 token = "<Your Token Here>"
