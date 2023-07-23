@@ -15,7 +15,7 @@ class Parser:
                         default = 'You are working as a software called Bard-Shell. Greet the user in an appropriate way, not including any of the other input',
                         help = "Give a prompt",)
         self.parser.add_option("-s", "--show-prompt",
-                        action = 'store_false',
+                        action = 'store_true',
                         dest = "show_prompt",
                         default = False,
                         help = "Whether to show the prompt passed in (default: False)",)
