@@ -5,23 +5,20 @@ import sys
 import toml
 
 class BardShell:
-    def __init__(self, parser, configfile='/.config/bardshell/bard.toml'):
-        self.config = configfile
+    def __init__(self, parser):
         self.all_modes = ['content', 'conversation_id', 'response_id', 'factualityQueries', 'textQuery', 'choices', 'links', 'images', 'code']
         self.stdin = ''
         self.modes = []
         self.parser = parser
         (self.options, self.args) = self.parser.add_options()
-        # Get token
-        config = toml.load(os.path.expanduser('~') + self.config)
-        self.token = config['user']['token']
-        self.setup_token()
-
         self.response = dict() # the raw response sent by bard
         pass
 
-    def setup_token(self):
+    def setup_token(self, configfile='~/.config/bardshell/bard.toml'):
         print('Initializing....')
+        config = toml.load(os.path.expanduser(configfile))
+        self.token = config['user']['token']
+
         # Give the token to bard
         self.bard = Bard(token=self.token)
         print('Done.')
@@ -41,9 +38,8 @@ class BardShell:
             print(f'Error: {e} is not in Available Modes\n')
             self.parser.print_help()
             exit()
-        return e
 
-    def get_modes(self):
+    def setup_modes(self):
         # Get all modes
         self.modes = self.options.modes.split(',')
         # Check if these modes exist
@@ -73,10 +69,10 @@ class BardShell:
         else:
             p = 'Command Output:\n' + self.stdin + '\nPrompt:\n' + self.options.prompt + '\n'
 
-        print('Getting Bard Response..')
-
         prompt = str(info) + str(p)
-        print(prompt)
+
+        if self.options.show_prompt:
+            print(prompt)
         return prompt
 
     # Function to execute code
@@ -116,12 +112,13 @@ class BardShell:
         pass
 
     def get_response(self):
+        print('Fetching Bard\'s response...')
         # Get Response for the prompt
         final_prompt = self.generate_prompt()
         self.response = self.bard.get_answer(final_prompt)
         pass
 
-    def code_run(self):
+    def show_response(self):
         # If code exists
         code_exists = False
         for key in self.modes:
