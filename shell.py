@@ -86,34 +86,46 @@ class BardShell:
             print('Code is null')
             return
 
-        # This is not working, just running the script for now
-        # yn = input('[E]dit,[R]un,[A]bort: ')
-        yn = 'r'
-        yn = yn.lower() if len(yn) > 0 else 'e'
-
         # File to store code
         filename = '/tmp/bard_code'
 
-        # Search for code in content
-        print(re.search('```.\S', code))
+        written = False
+        while True:
+            yn = input('[E]dit,[R]un,[W]rite,[A]bort: ')
+            yn = yn.lower() if len(yn) > 0 else 'e'
 
-        # Abort
-        if yn == 'a':
-            return
+            # Search for code in content
+            print(re.search('```.\S', code))
 
-        # Edit
-        elif yn == 'e':
-            with open(filename, 'w') as f:
-                f.write(code)
-            os.system(f'nvim {filename}')
-            return
+            if not written:
+                with open(filename, 'w') as f:
+                    f.write(code)
+                written = True
 
-        # Execute code
-        elif yn == 'r':
-            with open(filename, 'w') as f:
-                f.write(code)
+            # Abort
+            if yn == 'a':
+                break
 
-            os.system(f'chmod +x {filename} && sh {filename}')
+            # Edit
+            elif yn == 'e':
+                os.system(f'$EDITOR {filename}')
+                with open(filename, 'r') as f:
+                    code = f.read()
+
+            # Execute code
+            elif yn == 'r':
+                os.system(f'chmod +x {filename} && sh {filename}')
+                break
+            
+            # Write to a file
+            elif yn == 'w':
+                path = input('Enter path to save script[Default: ~/myscript.sh]: ')
+                if path == '':
+                    path = '~/myscript.sh'
+                path = os.path.expanduser(path)
+                with open(path, 'w') as f:
+                    f.write(code)
+                print('Written to', path)
         pass
 
     def get_response(self):
