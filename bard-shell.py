@@ -17,6 +17,3 @@ shell.setup_modes()
 
 # Get Response from bard
 shell.get_response()
-
-# Show the response
-shell.show_response()

@@ -51,7 +51,7 @@ class BardShell:
         for m in self.modes:
             self.check_mode(m)
 
-    def generate_prompt(self):
+    def generate_prompt(self, prompt):
         info = ''
 
         # Get neofetch info
@@ -70,15 +70,15 @@ class BardShell:
 
         # If There is no stdin pass the prompt as normal
         if self.stdin == '':
-            p = 'Prompt:\n' + self.options.prompt
+            p = 'Prompt:\n' + prompt
         else:
-            p = 'Command Output:\n' + self.stdin + '\nPrompt:\n' + self.options.prompt + '\n'
+            p = 'Command Output:\n' + self.stdin + '\nPrompt:\n' + prompt + '\n'
 
-        prompt = str(info) + str(p)
+        final_prompt = str(info) + str(p)
 
         if self.options.show_prompt:
-            print(prompt)
-        return prompt
+            print(final_prompt)
+        return final_prompt
 
     # Function to execute code
     def code_exec(self, code):
@@ -129,10 +129,20 @@ class BardShell:
         pass
 
     def get_response(self):
-        print('Fetching Bard\'s response...')
-        # Get Response for the prompt
-        final_prompt = self.generate_prompt()
-        self.response = self.bard.get_answer(final_prompt)
+        new_prompt = self.options.prompt
+        while True:
+            print('Fetching Bard\'s response...')
+            # Get Response for the prompt
+            final_prompt = self.generate_prompt(new_prompt)
+            self.response = self.bard.get_answer(final_prompt)
+            # Show response
+            self.show_response()
+
+            if input('Continue[Y/n]: ').lower() != 'y':
+                print('Exit.')
+                break
+
+            new_prompt = input('Prompt: ')
         pass
 
     def show_response(self):
