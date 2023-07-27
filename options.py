@@ -12,7 +12,6 @@ class Parser:
         self.parser.add_option("-p", "--prompt",
                         dest = "prompt",
                         type = 'string',
-                        default = 'You are working as a software called Bard-Shell. Greet the user in an appropriate way, not including any of the other input',
                         help = "Give a prompt",)
         self.parser.add_option("-i", "--send-sysinfo",
                         action = 'store_true',

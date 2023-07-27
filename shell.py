@@ -17,28 +17,41 @@ class BardShell:
         self.token = self.config['user']['token']
         pass
 
+    def color_text(self, text, color):
+        color_codes = {
+            "red": "\033[31m",
+            "green": "\033[32m",
+            "yellow": "\033[33m",
+            "blue": "\033[34m",
+            "magenta": "\033[35m",
+            "cyan": "\033[36m",
+            "white": "\033[37m",
+        }
+
+        print(color_codes[color] + text + "\033[0m")
+
+
     def setup_token(self):
-        print('Initializing....')
+        self.color_text('Initializing....', 'green')
         # Give the token to bard
         if self.token[-1] != '.':
-            print('Invalid token given, check the config file')
+            self.color_text('Invalid token given, check the config file', 'red')
             exit()
         self.bard = Bard(token=self.token)
-        print('Done.')
+        self.color_text('Done.', 'yellow')
         pass
 
     def get_stdin(self):
         # Get stdin output
         if not sys.stdin.isatty():
             self.stdin = sys.stdin.read()
-            sys.stdin.flush()
             pass
 
     # Method to check if given modes are Available
     def check_mode(self, mode):
         e = mode in self.all_modes
         if not e:
-            print(f'Error: {e} is not in Available Modes\n')
+            self.color_text(f'Error: {e} is not in Available Modes\n', 'red')
             self.parser.print_help()
             exit()
 
@@ -65,7 +78,11 @@ class BardShell:
             info += 'Present Working Directory:\n' + os.getcwd() + '\n\n'
 
         # Prompt to give bard all the info it might need
-        instructions = self.config['default']['instructions']
+        instructions = ''
+        if 'code' in self.modes:
+            instructions = self.config['prompt']['code']
+        else:
+            instructions = self.config['prompt']['normal']
         info += instructions
 
         # If There is no stdin pass the prompt as normal
@@ -81,21 +98,27 @@ class BardShell:
         return final_prompt
 
     # Function to execute code
-    def code_exec(self, code):
-        if not code:
-            print('Code is null')
-            return
-
+    def code_exec(self, content):
         # File to store code
         filename = '/tmp/bard_code'
 
         written = False
         while True:
-            yn = input('[E]dit,[R]un,[W]rite,[A]bort: ')
-            yn = yn.lower() if len(yn) > 0 else 'e'
-
             # Search for code in content
-            print(re.search('```.\S', code))
+            all_codes = re.split('```.*\n', content)
+            code = ''
+            for i in range(1, len(all_codes), 2):
+                code += all_codes[i]
+
+            print(code)
+
+            if code == '':
+                self.color_text('No Code recieved.', 'red')
+                return
+            
+            self.color_text('[E]dit,[R]un,[C]lear,[W]rite,[A]bort: ', 'yellow')
+            yn = input()
+            yn = yn.lower() if len(yn) > 0 else 'e'
 
             if not written:
                 with open(filename, 'w') as f:
@@ -105,6 +128,13 @@ class BardShell:
             # Abort
             if yn == 'a':
                 break
+
+            if yn == 'c':
+                if os.name == 'nt':
+                    os.system('cls')
+                else:
+                    os.system('clear')
+
 
             # Edit
             elif yn == 'e':
@@ -125,25 +155,32 @@ class BardShell:
                 path = os.path.expanduser(path)
                 with open(path, 'w') as f:
                     f.write(code)
-                print('Written to', path)
+                self.color_text(f'Written to {path}', 'green')
         pass
 
     def get_response(self):
         new_prompt = self.options.prompt
         while True:
-            print('Fetching Bard\'s response...')
+            if not new_prompt:
+                try:
+                    new_prompt = input('>> ')
+                except Exception:
+                    exit()
+                if new_prompt == 'exit':
+                    return
+            self.color_text('Fetching Bard\'s response...', 'yellow')
             # Get Response for the prompt
             final_prompt = self.generate_prompt(new_prompt)
-            self.response = self.bard.get_answer(final_prompt)
+            try:
+                self.response = self.bard.get_answer(final_prompt)
+            except Exception as e:
+                self.color_text(f'{e} Exception occurred. Trying again..', 'red')
+                continue
             # Show response
             self.show_response()
 
-            if input('Continue[Y/n]: ').lower() != 'y':
-                print('Exit.')
-                break
+            new_prompt = None
 
-            new_prompt = input('Prompt: ')
-        pass
 
     def show_response(self):
         # If code exists
@@ -152,11 +189,12 @@ class BardShell:
             # And user asking for code
             if key == 'code':
                 code_exists = True
+                continue
             print(key.title(), end=': \n')
             print(self.response[key], end='\n\n')
             pass
 
         # Run code-exec if asked for code
         if code_exists:
-            self.code_exec(self.response['code'])
+            self.code_exec(self.response['content'])
         pass
