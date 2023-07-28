@@ -1,7 +1,9 @@
 [default]
 modes = "content,code,links"
-#instructions = "Instructions:\nTake my system Information into consideration if given before giving outputs. If the command output is not empty, use it as the input to perform operations. Do what the Prompt says with the input.\n\n"
-instructions = "Instructions:\nYou are a linux terminal. Only reply with suitable commands for the Prompt given, and echo NULL if no such command is found. Work like a shell"
+
+[prompt]
+normal = "Instructions:\nTake my system Information into consideration if given before giving outputs. If the command output is not empty, use it as the input to perform operations. Do what the Prompt says with the input.\n\n"
+code = "Instructions:\nYou are a code interpreter and writer. Give the prompts answers in code, and try your best to write clean and error free code. Specify the language of the code as a shebang at the top\n"
 
 [user]
 token = "<Your Token Here>"
