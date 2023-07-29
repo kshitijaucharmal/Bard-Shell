@@ -174,7 +174,7 @@ class BardShell:
             try:
                 self.response = self.bard.get_answer(final_prompt)
             except Exception as e:
-                self.color_text(f'{e} Exception occurred. Trying again..', 'red')
+                self.color_text(str(e), 'red')
                 continue
             # Show response
             self.show_response()
