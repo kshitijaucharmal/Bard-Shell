@@ -37,7 +37,11 @@ class BardShell:
         if self.token[-1] != '.':
             self.color_text('Invalid token given, check the config file', 'red')
             exit()
-        self.bard = Bard(token=self.token)
+        try:
+            self.bard = Bard(token=self.token)
+        except Exception as e:
+            self.color_text(str(e), 'red')
+            exit()
         self.color_text('Done.', 'yellow')
         pass
 
