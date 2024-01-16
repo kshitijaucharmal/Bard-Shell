@@ -1,0 +1,8 @@
+README.md
+setup.py
+geminishell/__init__.py
+geminishell/__main__.py
+geminishell.egg-info/PKG-INFO
+geminishell.egg-info/SOURCES.txt
+geminishell.egg-info/dependency_links.txt
+geminishell.egg-info/top_level.txt
