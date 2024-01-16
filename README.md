@@ -1,82 +1,36 @@
-# Bard Shell
+# GeminiShell
 
-Bard-Shell is a utility that allows you to use Google's Bard AI in the Linux terminal.
+GeminiShell is a powerful terminal application that uses the Gemini API to bring the power of Google's Gemini AI to your fingertips. With GeminiShell, you can:
 
-## Examples
-Check out the [examples](https://github.com/kshitijaucharmal/Bard-Shell/tree/main/examples) folder for some examples.
-(*You can also contribute examples)
+* **Easily access and interact with your Gemini AI.** Just type in your query and GeminiShell will do the rest.
+* **Get help with coding, debugging, and other tasks.** Gemini AI can answer your questions and provide helpful suggestions.
+* **Automate repetitive tasks.** Gemini AI can learn from your past actions and help you automate common tasks.
+* **Extend GeminiShell's functionality with plugins.** There are a growing number of plugins available that add new features and capabilities to GeminiShell.
 
-## Requirements
-+ Python 3.x
-+ [Neofetch](https://github.com/dylanaraps/neofetch)
-+ [Bard-api](https://github.com/dsdanielpark/Bard-API)
-+ [Toml](https://pypi.org/project/toml/)
+## Getting Started
 
-## Installation
-To install Bard Shell, simply clone this repository and run the following commands.
-```
-chmod +x install.sh
-./install.sh
-```
+To get started with GeminiShell, you will need to:
 
-To get a list of options, run
-```
-./bard-shell.py -h
-```
+1. **Install GeminiShell.** You can download the latest version of GeminiShell from the [releases page](https://github.com/geminishell/geminishell/releases).
+2. **Create a Gemini API key.** You can create a Gemini API key by following the instructions on the [Gemini website](https://gemini.google.com/docs/authentication).
+3. **Configure GeminiShell.** Once you have installed GeminiShell and created a Gemini API key, you will need to configure GeminiShell to use your API key. You can do this by following the instructions in the [GeminiShell documentation](https://geminishell.readthedocs.io/en/latest/configuration.html).
 
-> You can link the python file to your local bin folder, but somehow its not working for me
+## Using GeminiShell
 
-## Authentication
-> **Warning** Do not expose the `__Secure-1PSID` 
-1. Visit https://bard.google.com/
-2. F12 for console
-3. Session: Application → Cookies → Copy the value of  `__Secure-1PSID` cookie.
-4. Store this value in the config file (default location:`~/.config/bardshell/bard.toml`)
+Once you have configured GeminiShell, you can start using it to interact with the Gemini AI. To do this, simply type in your query and press Enter. GeminiShell will then display the results of your query.
 
-Note that while I referred to `__Secure-1PSID` value as an API key for convenience, it is not an officially provided API key. 
-Cookie value subject to frequent changes. Verify the value again if an error occurs. Most errors occur when an invalid cookie value is entered. Taken from the [Bard-api](https://github.com/dsdanielpark/Bard-API) GitHub
+You can also use GeminiShell to automate repetitive tasks. To do this, you can create a script that uses the Gemini API. You can then run the script from within GeminiShell.
 
-## Usage
-pipe any commands output into bard-shell.py and give a prompt using the `-p` option.
+## Plugins
 
-```bash
-ls ~ | ./bard-shell.py -p "Summarize the contents of my directory"
-```
+There are a growing number of plugins available that add new features and capabilities to GeminiShell. You can find a list of available plugins on the [GeminiShell plugins page](https://geminishell.readthedocs.io/en/latest/plugins.html).
 
-Use the `-m` or `--modes` flag to provide specific output. The default modes are listed in the example config.
-
-```bash
-./bard-shell.py -m content,code
-```
-
-Use the `-s` option to view the prompt being sent to bard. (This is going to be much more customizeable in the future)
-```bash
-./bard-shell.py -s # Show the prompt being sent
-```
-
-## Examples
-Some examples of how to use Bard-Shell are:
-```bash
-# For debugging or finding errors quickly
-systemctl status swww | ./bard-shell.py -p "Summarize the command output and suggest solutions to any errors"
-
-# For simple uses
-ls ~ | ./bard-shell.py -p "Write a simple story based on aliens based on the contents of this directory"
-
-# For Fun!!
-ls ~/Downloads | python ~/dox/programming/Python/Bard-Shell/bard-shell.py -p "Write a short story on the contents of the current directory in a class rick and morty way" -m content
-```
-
-## Features
-
-+ Can read from stdin
-+ Can prompt Bard with the system info
-+ Can be used in the terminal
+To install a plugin, simply download the plugin file and place it in the GeminiShell plugins directory. You can then enable the plugin by following the instructions in the plugin's documentation.
 
 ## Contributing
 
-Just fork this repo and add a pull request !!
+GeminiShell is an open source project and we welcome contributions from the community. If you would like to contribute to GeminiShell, please read the [contribution guidelines](https://github.com/geminishell/geminishell/blob/master/CONTRIBUTING.md).
 
 ## License
 
-Bard Shell is released under the [Apache 2.0](https://github.com/kshitijaucharmal/Bard-Shell/blob/main/LICENSE) License.
+GeminiShell is licensed under the Apache License, Version 2.0. You can find a copy of the license in the [LICENSE](https://github.com/geminishell/geminishell/blob/master/LICENSE) file.
